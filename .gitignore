@@ -1,0 +1,8 @@
+
+*.toc
+
+*.seg
+
+index/MAIN_WRITELOCK
+
+wine-reviews/winemag-data_first10_light.csv
