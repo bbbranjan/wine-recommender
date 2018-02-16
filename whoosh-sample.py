@@ -5,14 +5,15 @@ from whoosh.fields import *
 
 import pandas as pd
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 import re
 import string
 import csv
-import nltk
 
 stops = set(stopwords.words("english")) # Obtains common stop words from nltk
+lemmatizer = WordNetLemmatizer()
 
-def removePunctuation(x):
+def remove_punctuation(x):
     # Lowercasing all words
     x = x.lower()
     # Removing non ASCII chars
@@ -20,10 +21,15 @@ def removePunctuation(x):
     # Removing (replacing with empty spaces actually) all the punctuations
     return re.sub("["+string.punctuation+"]", " ", x)
 
-def removeStopwords(x):
+def remove_stopwords(x):
     # Removing all the stopwords
     filtered_words = [word for word in x.split() if word not in stops]
     return " ".join(filtered_words)
+
+def lemmatize_words(x):
+    # Lemmatizing words
+    lemmatizedWords = [lemmatizer.lemmatize(word) for word in x.split()]
+    return " ".join(lemmatizedWords)
 
 # Creating the index
 schema = Schema(title=TEXT(stored=True), path=ID(stored=True), content=TEXT)
@@ -35,10 +41,13 @@ writer = ix.writer()
 # Loading the dataframe
 dataframe = pd.read_csv('./wine-reviews/winemag-data_first10.csv')
 # Removing punctuation
-dataframe["description"] = dataframe["description"].map(removePunctuation) 
+dataframe["description"] = dataframe["description"].map(remove_punctuation) 
 # Removing stopwords
-dataframe["description"] = dataframe["description"].map(removeStopwords) 
+dataframe["description"] = dataframe["description"].map(remove_stopwords)
+# Lemmatizing words
+dataframe["description"] = dataframe["description"].map(lemmatize_words)
 
+# Store tokens in light CSV file
 dataframe.to_csv('./wine-reviews/winemag-data_first10_light.csv', index=False)
 
 with open('./wine-reviews/winemag-data_first10_light.csv', 'rb') as csvfile:
@@ -57,6 +66,7 @@ writer.commit()
 from whoosh.qparser import QueryParser
 # Requesting input of keywords
 keywords = str(raw_input("Enter keywords to search, separated by spaces: "))
+keywords = " ".join([lemmatizer.lemmatize(word) for word in keywords.split()])
 with ix.searcher() as searcher:
     # Parsing index for keywords
 	query = QueryParser("content", ix.schema).parse(keywords)
