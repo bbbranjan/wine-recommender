@@ -95,11 +95,20 @@ def main():
 	tf_idf_doc_dict = {}
 	for term in terms:
 		tf_idf_dict = {}
+		tfdict = tf_doc_dict[term]
 		for i in range(0, N):
-			tfdict = tf_doc_dict[term]
 			tf_idf_dict[str(i)] = float(tfdict[str(i)]) * float(idf[term])
 			# tf_idf_dict[str(i)] = round(tf_idf_dict[str(i)], 2)
 		tf_idf_doc_dict[term] = tf_idf_dict
+
+	# Length normalization
+	for i in range(0, N):
+		total_length = 0.0
+		for term in terms:
+			total_length = total_length + math.pow(float(tf_idf_doc_dict[term][str(i)]), 2)
+		total_length = math.sqrt(total_length)
+		for term in terms:
+			tf_idf_doc_dict[term][str(i)] = float(tf_idf_doc_dict[term][str(i)])/total_length
 
 	# Store tf-idf dictionary in dataframe and save as csv file
 	tfidf_df = pd.DataFrame(data=tf_idf_doc_dict)

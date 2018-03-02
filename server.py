@@ -1,6 +1,6 @@
 import whoosh.index as index
 from whoosh.qparser import QueryParser
-import indexer
+
 import csv
 import pandas as pd
 from nltk.stem import WordNetLemmatizer
@@ -32,6 +32,8 @@ while(True):
 	for key, value in results.items():
 		if value == 0:
 			del results[key]
+		else:
+			value = value/len(keywords)
 
 	count = 10
 	# Retrieve and print result document titles
@@ -41,7 +43,7 @@ while(True):
 			# Search for document by path index
 			query = QueryParser("path", ix.schema).parse("/{0}".format(key))
 			document = searcher.search(query)[0]
-			print("{0} | {1} | {2}".format(key, document['title'], float(results[key])))
+			print("{0} | {1} | {2} %".format(key, document['title'], round(float(results[key])*100.0, 2)))
 		count = count - 1
 		if count == 0:
 			break
