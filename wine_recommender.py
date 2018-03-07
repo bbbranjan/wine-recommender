@@ -11,10 +11,7 @@ ix = index.open_dir("index")
 tfidf_df = pd.read_csv('./wine-reviews/winemag-tfidf-matrix.csv')
 tf_idf_doc_dict = tfidf_df.to_dict()
 
-while(True):
-	# Request input of keywords
-	keywords = str(raw_input("Enter keywords to search, separated by spaces [Ctrl + C to quit] : "))
-	keywords = " ".join([lemmatizer.lemmatize(word) for word in keywords.split()])
+def get_wines(keywords):
 	
 	results = {}
 	N = len(tfidf_df.index)
@@ -36,6 +33,7 @@ while(True):
 			value = value/len(keywords)
 
 	count = 10
+	documents = []
 	# Retrieve and print result document titles
 	print "ID | Title | Score "
 	for key, value in sorted(results.iteritems(), key=lambda (k,v): (v,k), reverse=True):
@@ -43,7 +41,16 @@ while(True):
 			# Search for document by path index
 			query = QueryParser("path", ix.schema).parse("/{0}".format(key))
 			document = searcher.search(query)[0]
+			documents.append({'title': document['title'], 'content': ""})
 			print("{0} | {1} | {2} %".format(key, document['title'], round(float(results[key])*100.0, 2)))
 		count = count - 1
 		if count == 0:
 			break
+
+	return documents
+
+if __name__ == "__main__":
+	# Request input of keywords
+	keywords = str(raw_input("Enter keywords to search, separated by spaces [Ctrl + C to quit] : "))
+	keywords = " ".join([lemmatizer.lemmatize(word) for word in keywords.split()])
+	get_wines(keywords)
