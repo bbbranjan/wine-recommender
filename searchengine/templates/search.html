@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content%}
+	<!-- Displays form for querying -->
     <div class="row center-align">
         <form class="col s12" action="" method="post">
             {% csrf_token %}
@@ -15,12 +16,8 @@
             </div>
         </form>
     </div>
-    <!-- <form action="" method="post">
-        {% csrf_token %}
-        <input type="text" name="term" size="30"> 
-        <input type="submit" value="Search">
-    </form> -->
 
+    <!-- Displays result cards for each result -->
     {% if result %}
         {% for res in result %}
         <div class="row">
@@ -36,7 +33,7 @@
             </div>
         </div>
         </div>
-        <!-- <li>{{ res }}</li> -->
+        
         {% endfor %}
     {% endif %}
 
