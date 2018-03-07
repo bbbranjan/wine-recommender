@@ -1,3 +1,4 @@
 pandas==0.21.1
+Django==1.11.11
 Whoosh==2.7.4
 nltk==3.2.5
