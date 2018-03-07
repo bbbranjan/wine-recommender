@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block content%}
+    <div class="row center-align">
+        <form class="col s12" action="" method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="input-field s6">
+                        <input id="term" type="text" name="term" class="validate">
+                        <label for="term">Search</label>
+                </div>
+            </div>
+            <div class="row">
+                <input class="btn waves-effect waves-light" type="submit" name="action">
+                </input>    
+            </div>
+        </form>
+    </div>
+    <!-- <form action="" method="post">
+        {% csrf_token %}
+        <input type="text" name="term" size="30"> 
+        <input type="submit" value="Search">
+    </form> -->
+
+    {% if result %}
+        {% for res in result %}
+        <div class="row">
+        <div class="col s12 m8 offset-m2">
+            <div class="card">
+            <div class="card-content">
+                <span class="card-title">{{res.title}}</span>
+                <p>{{res.content}}</p>
+            </div>
+            <div class="card-action">
+                <a href="#">Learn More</a>
+                <a href="#">I'm feeling lucky</a>
+            </div>
+            </div>
+        </div>
+        </div>
+        <!-- <li>{{ res }}</li> -->
+        {% endfor %}
+    {% endif %}
+
+{% endblock %}
