@@ -1,5 +1,5 @@
 from sklearn.cross_validation import train_test_split
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, cohen_kappa_score
 from sklearn.naive_bayes import MultinomialNB
@@ -18,7 +18,7 @@ for index, row in dataframe.iterrows():
 	else:
 		data_labels.append('neg')
 
-vectorizer = CountVectorizer(analyzer='word', strip_accents='ascii', lowercase=True)
+vectorizer = TfidfVectorizer(analyzer='word', strip_accents='ascii', lowercase=True, max_features=10000)
 features = vectorizer.fit_transform(dataframe['description'])
 features_nd = features.toarray() # for easy usage
 
