@@ -8,11 +8,12 @@ from sklearn.svm import LinearSVC
 import pandas as pd
 
 # Load the dataframe
-dataframe = pd.read_csv('./wine-reviews/winemag-data_first200.csv')
+dataframe = pd.read_csv('./wine-reviews/winemag-data_first1500.csv')
+
 data_labels = []
 
-for i in range(0, len(dataframe['description'])):
-	if dataframe['points'][i] >= 90:
+for index, row in dataframe.iterrows():
+	if row['points'] >= 85:
 		data_labels.append('pos')
 	else:
 		data_labels.append('neg')
@@ -23,7 +24,9 @@ features_nd = features.toarray() # for easy usage
 
 # print('{}'.format(features))
 
-X_train, X_test, y_train, y_test  = train_test_split(features_nd, data_labels, train_size=0.82)
+train_split = 0.8
+
+X_train, X_test, y_train, y_test  = train_test_split(features_nd, data_labels, train_size=train_split)
 
 # Logistic Regression method
 print('\nLogistic Regression Method')
@@ -34,22 +37,21 @@ log_y_pred = log_model.predict(X_test)
 print('Accuracy Score: {}'.format(accuracy_score(y_test, log_y_pred)))
 print('Cohen Kappa Score: {}'.format(cohen_kappa_score(y_test, log_y_pred)))
 
-# print ('y_test | y_pred')
-# for i in range(0, len(X_test)):
-# 	print('{0} | {1} '.format(y_test[i], y_pred[i]))
 
-
+# Multinomial Naive Bayes method
 print('\nMultinomial Naive Bayes Method')
 print('===========================')
-clf = MultinomialNB().fit(X_train, y_train)
-nb_y_pred = clf.predict(X_test)
+nb_classifier = MultinomialNB().fit(X_train, y_train)
+nb_y_pred = nb_classifier.predict(X_test)
 print('Accuracy Score: {}'.format(accuracy_score(y_test, nb_y_pred)))
 print('Cohen Kappa Score: {}'.format(cohen_kappa_score(y_test, nb_y_pred)))
 
+
+# Linear SVC method
 print('\nLinear SVC Method')
 print('===========================')
-classifier = LinearSVC()
-classifier.fit(X_train, y_train)
-svc_y_pred = classifier.predict(X_test)
+svc_classifier = LinearSVC()
+svc_classifier.fit(X_train, y_train)
+svc_y_pred = svc_classifier.predict(X_test)
 print('Accuracy Score: {}'.format(accuracy_score(y_test, svc_y_pred)))
 print('Cohen Kappa Score: {}'.format(cohen_kappa_score(y_test, svc_y_pred)))
