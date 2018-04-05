@@ -8,7 +8,7 @@ from sklearn.svm import LinearSVC
 import pandas as pd
 
 # Load the dataframe
-dataframe = pd.read_csv('./wine-reviews/winemag-data_first1500.csv')
+dataframe = pd.read_csv('./wine-reviews/winemag-data_labelled1500.csv')
 
 data_labels = []
 
