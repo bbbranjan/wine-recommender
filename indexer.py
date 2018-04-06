@@ -46,15 +46,15 @@ def main():
 	writer = ix.writer()
 
 	# Load the dataframe
-	dataframe = pd.read_csv('./wine-reviews/winemag-data_first100.csv')
+	dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews.csv')
 	# Remove punctuation
-	dataframe["description"] = dataframe["description"].map(remove_punctuation)
+	dataframe["review"] = dataframe["review"].map(remove_punctuation)
 	# Remove numbers
-	dataframe["description"] = dataframe["description"].map(remove_numbers)  
+	dataframe["review"] = dataframe["review"].map(remove_numbers)  
 	# Remove stopwords
-	dataframe["description"] = dataframe["description"].map(remove_stopwords)
+	dataframe["review"] = dataframe["review"].map(remove_stopwords)
 	# Lemmatize words
-	dataframe["description"] = dataframe["description"].map(lemmatize_words)
+	dataframe["review"] = dataframe["review"].map(lemmatize_words)
 
 	N = len(dataframe)
 	dfs = {}
@@ -63,7 +63,7 @@ def main():
 
 	# Calculate inverted document frequency
 	for i in range(0, N):
-		for term in dataframe["description"].iloc[i].split():
+		for term in dataframe["review"].iloc[i].split():
 			if term in terms:
 				dfs[term] = dfs[term] + 1
 			else:
@@ -80,7 +80,7 @@ def main():
 		tf_dict = {}
 		for i in range(0, N):
 			tf = 0
-			for word in dataframe["description"].iloc[i].split():
+			for word in dataframe["review"].iloc[i].split():
 				if word == term:
 					tf = tf + 1
 			if tf > 0:
@@ -113,20 +113,20 @@ def main():
 	# Store tf-idf dictionary in dataframe and save as csv file
 	tfidf_df = pd.DataFrame(data=tf_idf_doc_dict)
 
-	tfidf_df.to_csv('./wine-reviews/winemag-tfidf-matrix.csv', index=True)
+	tfidf_df.to_csv('./wine-reviews/cleaned_wine_reviews-tfidf-matrix.csv', index=True)
 
 	print "Indexer is being run"
 
 	# Store tokens in light CSV file
-	dataframe.to_csv('./wine-reviews/winemag-data_first100_light.csv', index=False)
+	dataframe.to_csv('./wine-reviews/cleaned_wine_reviews_light.csv', index=False)
 
-	with open('./wine-reviews/winemag-data_first100_light.csv', 'rb') as csvfile:
+	with open('./wine-reviews/cleaned_wine_reviews_light.csv', 'rb') as csvfile:
 	    # Read the csv file as a dict
 		review_reader = csv.DictReader(csvfile)
 		id_num = 0; # Track row id
 		for row in review_reader:
-	        # Add the processed description as a document to the index
-			writer.add_document(title=unicode("{0}, {1}, {2}, {3}".format(row['variety'], row['designation'], row['region_1'], row['country']), errors='ignore'), path=unicode("/{0}".format(id_num), errors='ignore'), content=unicode("{0}".format(row['description']), errors='ignore'))
+	        # Add the processed review as a document to the index
+			writer.add_document(title=unicode(row['title'], errors='ignore'), path=unicode("/{0}".format(id_num), errors='ignore'), content=unicode("{0}".format(row['review']), errors='ignore'))
 			id_num = id_num + 1
 
 	# Commit added documents to index

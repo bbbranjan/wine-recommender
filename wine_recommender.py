@@ -8,7 +8,7 @@ from nltk.stem import WordNetLemmatizer
 lemmatizer = WordNetLemmatizer()
 ix = index.open_dir("index")
 
-tfidf_df = pd.read_csv('./wine-reviews/winemag-tfidf-matrix.csv')
+tfidf_df = pd.read_csv('./wine-reviews/cleaned_wine_reviews-tfidf-matrix.csv')
 tf_idf_doc_dict = tfidf_df.to_dict()
 
 def get_wines(keywords):
