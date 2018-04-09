@@ -10,3 +10,5 @@ wine-reviews/winemag-data_first10_light.csv
 wine-reviews/winemag-data_first100_light.csv
 
 wine-reviews/winemag-tfidf-matrix.csv
+
+labelled1500_light_300features_40minwords_10context
