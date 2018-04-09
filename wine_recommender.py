@@ -1,56 +1,50 @@
-import whoosh.index as index
-from whoosh.qparser import QueryParser
-
 import csv
-import pandas as pd
+from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+import numpy as np
+import pandas as pd
+from scipy.sparse import csr_matrix
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
+stops = set(stopwords.words("english")) # Obtains common stop words from nltk
 lemmatizer = WordNetLemmatizer()
-ix = index.open_dir("index")
-
-tfidf_df = pd.read_csv('./wine-reviews/winemag-tfidf-matrix.csv')
-tf_idf_doc_dict = tfidf_df.to_dict()
+cleaned_dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews_light.csv')
+original_dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews.csv')
 
 def get_wines(keywords):
-	
-	results = {}
-	N = len(tfidf_df.index)
-	# Compute results
-	for keyword in keywords.split():
-		if not tf_idf_doc_dict.has_key(keyword):
-			continue
-		for i in range(0, N):
-			if results.has_key(str(i)):
-				results[str(i)] = results[str(i)] + float(tf_idf_doc_dict[keyword][i])
-			else:
-				results[str(i)] = 0 + float(tf_idf_doc_dict[keyword][i])
-	
-	# Remove results with zero score
-	for key, value in results.items():
-		if value == 0:
-			del results[key]
-		else:
-			value = value/len(keywords)
+	print(keywords)
+	vectorizer = TfidfVectorizer()
+	tfidf_matrix = vectorizer.fit_transform(cleaned_dataframe['review'])
+	feature_names = vectorizer.get_feature_names()
 
-	count = 10
-	documents = []
-	# Retrieve and print result document titles
-	print "ID | Title | Score "
-	for key, value in sorted(results.iteritems(), key=lambda (k,v): (v,k), reverse=True):
-		with ix.searcher() as searcher:
-			# Search for document by path index
-			query = QueryParser("path", ix.schema).parse("/{0}".format(key))
-			document = searcher.search(query)[0]
-			documents.append({'title': document['title'], 'content': ""})
-			print("{0} | {1} | {2} %".format(key, document['title'], round(float(results[key])*100.0, 2)))
-		count = count - 1
-		if count == 0:
-			break
+	query = keywords.split()
+	result_matrix = csr_matrix((tfidf_matrix.get_shape()[0],1), dtype=np.float64)
+	
+	for term in query:
+		for i in range(0, result_matrix.shape[0]):
+			if term in feature_names:
+				result_matrix[i,0] += tfidf_matrix.getrow(i).getcol(feature_names.index(term)).max()
 
-	return documents
+	result_scores = result_matrix.getcol(0).toarray()
+	result_scores = np.asarray(map(lambda x: x[0], result_scores))
+	
+	result_indices = np.argsort(result_scores)[-10:]
+	result_documents = []
+
+	for index in list(reversed(result_indices)):
+		document = cleaned_dataframe.iloc[index]
+		original_document = original_dataframe.iloc[index]
+		result_documents.append({'title': document['title'], 'content': original_document['review']})
+		print("| {0} | {1} | {2} | %".format(index, document['title'], round(float(result_scores.item(index))*100.0, 2)))
+
+	return result_documents
+
 
 if __name__ == "__main__":
 	# Request input of keywords
-	keywords = str(raw_input("Enter keywords to search, separated by spaces [Ctrl + C to quit] : "))
-	keywords = " ".join([lemmatizer.lemmatize(word) for word in keywords.split()])
-	get_wines(keywords)
+	while(True):
+		keywords = str(raw_input("Enter keywords to search, separated by spaces [Ctrl + C to quit] : "))
+		keywords = " ".join([lemmatizer.lemmatize(word) for word in keywords.split()])
+		keywords = " ".join([word for word in keywords.split() if word not in stops])
+		get_wines(keywords)
