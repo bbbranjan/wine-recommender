@@ -39,7 +39,6 @@ def tfidfClassification(dataframe, data_labels, train_split):
 	print('Time taken to fit data: {:0.4f}'.format(time.time() - start_fit))
 
 	X_train, X_test, y_train, y_test  = train_test_split(features_nd, data_labels.values(), train_size=train_split)
-	binary_y_test = [1 if y == 'pos' else 0 for y in y_test]
 
 	print(len(X_train), len(X_test))
 
@@ -50,10 +49,9 @@ def tfidfClassification(dataframe, data_labels, train_split):
 	log_model = log_model.fit(X=X_train, y=y_train)
 	log_y_pred = log_model.predict(X_test)
 	prediction_times.append(float('{:0.4f}'.format(time.time() - start_log)))
-	binary_log_y_pred = [1 if y == 'pos' else 0 for y in log_y_pred]
-	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(binary_y_test, binary_log_y_pred))))
-	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(binary_y_test, binary_log_y_pred))))
-	log_precision, log_recall, log_fbeta_score, _ = precision_recall_fscore_support(binary_y_test, binary_log_y_pred, average='binary')
+	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(y_test, log_y_pred))))
+	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(y_test, log_y_pred))))
+	log_precision, log_recall, log_fbeta_score, _ = precision_recall_fscore_support(y_test, log_y_pred, average='macro')
 	precision_scores.append(float('{:0.2f}'.format(log_precision)))
 	recall_scores.append(float('{:0.2f}'.format(log_recall)))
 	fbeta_scores.append(float('{:0.2f}'.format(log_fbeta_score)))
@@ -65,10 +63,9 @@ def tfidfClassification(dataframe, data_labels, train_split):
 	nb_classifier = MultinomialNB().fit(X_train, y_train)
 	nb_y_pred = nb_classifier.predict(X_test)
 	prediction_times.append(float('{:0.4f}'.format(time.time() - start_nb)))
-	binary_nb_y_pred = [1 if y == 'pos' else 0 for y in nb_y_pred]
-	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(binary_y_test, binary_nb_y_pred))))
-	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(binary_y_test, binary_nb_y_pred))))
-	nb_precision, nb_recall, nb_fbeta_score, _ = precision_recall_fscore_support(binary_y_test, binary_nb_y_pred, average='binary')
+	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(y_test, nb_y_pred))))
+	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(y_test, nb_y_pred))))
+	nb_precision, nb_recall, nb_fbeta_score, _ = precision_recall_fscore_support(y_test, nb_y_pred, average='macro')
 	precision_scores.append(float('{:0.2f}'.format(nb_precision)))
 	recall_scores.append(float('{:0.2f}'.format(nb_recall)))
 	fbeta_scores.append(float('{:0.2f}'.format(nb_fbeta_score)))
@@ -81,10 +78,9 @@ def tfidfClassification(dataframe, data_labels, train_split):
 	svc_classifier.fit(X_train, y_train)
 	svc_y_pred = svc_classifier.predict(X_test)
 	prediction_times.append(float('{:0.4f}'.format(time.time() - start_svc)))
-	binary_svc_y_pred = [1 if y == 'pos' else 0 for y in svc_y_pred]
 	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(y_test, svc_y_pred))))
 	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(y_test, svc_y_pred))))
-	svc_precision, svc_recall, svc_fbeta_score, _ = precision_recall_fscore_support(binary_y_test, binary_svc_y_pred, average='binary')
+	svc_precision, svc_recall, svc_fbeta_score, _ = precision_recall_fscore_support(y_test, svc_y_pred, average='macro')
 	precision_scores.append(float('{:0.2f}'.format(svc_precision)))
 	recall_scores.append(float('{:0.2f}'.format(svc_recall)))
 	fbeta_scores.append(float('{:0.2f}'.format(svc_fbeta_score)))
@@ -104,19 +100,19 @@ def getFeatureVec(words, model, num_features):
             word_count = word_count + 1
             feature_vec = np.add(feature_vec,model[word])
     
-    # Dividing the result by number of words to get average
-    feature_vec = np.divide(feature_vec, word_count)
+    # Not dividing the result by number of words to get average
+    # feature_vec = np.divide(feature_vec, word_count)
     return feature_vec
 
 # Function for calculating the average feature vector
-def getAvgFeatureVecs(reviews, model, num_features):
+def getDocFeatureVecs(reviews, model, num_features):
     counter = 0
-    avg_feature_vecs = np.zeros((len(reviews),num_features),dtype="float32")
+    doc_feature_vecs = np.zeros((len(reviews),num_features),dtype="float32")
     for review in reviews:
-        avg_feature_vecs[counter] = getFeatureVec(review, model, num_features)
+        doc_feature_vecs[counter] = getFeatureVec(review, model, num_features)
         counter = counter+1
         
-    return avg_feature_vecs
+    return doc_feature_vecs
 
 def Word2VecClassification(dataframe, data_labels, train_split):
 
@@ -145,7 +141,7 @@ def Word2VecClassification(dataframe, data_labels, train_split):
 	train_data_labels = []
 	for index, row in train_reviews.iterrows():
 		train_data_labels.append(data_labels[index])
-	train_data_vecs = getAvgFeatureVecs(train_reviews['review'], model, num_features)
+	train_data_vecs = getDocFeatureVecs(train_reviews['review'], model, num_features)
 
 	print(len(train_reviews['review']))
 
@@ -157,29 +153,21 @@ def Word2VecClassification(dataframe, data_labels, train_split):
 	print(len(test_reviews['review']))
 
 	for index, row in test_reviews.iterrows():
-		if data_labels[index] == 'pos':
-			test_data_labels.append(1)
-		else:
-			test_data_labels.append(0)
-	test_data_vecs = getAvgFeatureVecs(test_reviews['review'], model, num_features)
+		test_data_labels.append(data_labels[index])
+	test_data_vecs = getDocFeatureVecs(test_reviews['review'], model, num_features)
 
 	# Random Forest method
 	methods.append('Random Forest')
 	start_rf = time.time()
 	forest = RandomForestClassifier(n_estimators = 100)
 	forest = forest.fit(train_data_vecs, train_data_labels)
-	result = forest.predict(test_data_vecs)
+	predicted_labels = forest.predict(test_data_vecs)
 	prediction_times.append(float('{:0.4f}'.format(time.time() - start_rf)))
-	predicted_labels = []
-	for label in result:
-		if label == 'pos':
-			predicted_labels.append(1)
-		else:
-			predicted_labels.append(0)
+	# predicted_labels = result
 
 	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(test_data_labels, predicted_labels))))
 	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(test_data_labels, predicted_labels))))
-	rf_precision, rf_recall, rf_fbeta_score, _ = precision_recall_fscore_support(test_data_labels, predicted_labels, average='binary')
+	rf_precision, rf_recall, rf_fbeta_score, _ = precision_recall_fscore_support(test_data_labels, predicted_labels, average='macro')
 	precision_scores.append(float('{:0.2f}'.format(rf_precision)))
 	recall_scores.append(float('{:0.2f}'.format(rf_recall)))
 	fbeta_scores.append(float('{:0.2f}'.format(rf_fbeta_score)))
@@ -195,7 +183,7 @@ def main():
 	pos_rows = int(0.1*len(dataframe["review"])/2)
 	data_labels = {}
 	for index, row in dataframe.iterrows():
-		if row['rating'] >= 85:
+		if row['rating'] > 85:
 			if pos_rows == 0:
 				dataframe = dataframe.drop(index)
 			else:
@@ -219,7 +207,7 @@ def main():
 	tfidfClassification(dataframe, data_labels, train_split)
 	Word2VecClassification(dataframe, data_labels, train_split)
 
-	print('| Classification Method Employed | Accuracy | Kappa | Precision | Recall | F-score | Time')
+	print('| Classification Method | Accuracy | Kappa | Precision | Recall | F-score | Time')
 	for i in range(0, len(methods)):
 		print('| {0} | {1} | {2} | {3} | {4} | {5} | {6}'.format(methods[i], accuracy_scores[i], inter_annotator_agreement_scores[i], precision_scores[i], recall_scores[i], fbeta_scores[i], prediction_times[i]))
 
