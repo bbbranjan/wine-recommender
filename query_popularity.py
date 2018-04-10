@@ -1,60 +1,36 @@
-
-# coding: utf-8
-
-# In[1]:
-
-
 import pandas as pd
 
-
-# In[2]:
-
-
-df = pd.read_csv('C:\\Users\\Vick\\Desktop\\results.csv')
-
-
-# In[3]:
-
-
-df.to_dict()
-
-
-# In[4]:
-
-
-new_dict = {}
-old_dict = df.to_dict()
-for key in old_dict['count']:
-    new_dict[old_dict['query'][key]] = old_dict['count'][key]
-new_dict
-
-
-# In[5]:
-
-
-def popularTerms(query):
-    termsList = query.split()
-    for term in termsList:
-        if term in new_dict.keys():
-            new_dict[term] += 1
+df = pd.read_csv('./wine-reviews/popular_terms.csv')
+def get_popular_terms(query=''):
+    # print(df)
+    term_dict = {}
+    for index, row in df.iterrows():
+        term_dict[row['query']] = row['count']
+    query = query.strip()
+    if query.find(' ') == -1 and len(query) > 0:
+        print(query)
+        if term_dict.has_key(query):
+            term_dict[query] += 1
         else:
-            new_dict[term] = 1
+            term_dict[query] = 1
+    else:
+        for term in query.split(' '):
+            print(term)
+            if term_dict.has_key(term):
+                term_dict[term] += 1
+            else:
+                term_dict[term] = 1
 
-    DescList = sorted(new_dict, key=new_dict.get, reverse=True)
-    return DescList 
+    updated_df = pd.DataFrame(term_dict.items(), columns=['query', 'count'])
+    print(term_dict)
+
+    desc_list = sorted(term_dict, key=term_dict.get, reverse=True)
+    popular_terms_dict = {}
+    for i in range (0,3):
+        popular_terms_dict[desc_list[i]] = term_dict[desc_list[i]]
+    return popular_terms_dict
 
 
-# In[8]:
-
-
-updated_list = popularTerms('hello hello what is up')
-updated_list
-
-
-# In[9]:
-
-
-for i in range (0,5):
-    updated_dict[updated_list[i]] = new_dict[updated_list[i]]
-updated_dict
+if __name__ == '__main__':
+    popularTerms()
 

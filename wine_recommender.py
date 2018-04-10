@@ -40,6 +40,13 @@ def get_wines(keywords):
 
 	return result_documents
 
+def get_countries():
+	country_list = list(cleaned_dataframe['country'])
+	country_list = [c.strip() for c in country_list]
+	country_list = list(set(country_list))
+	country_list.sort()
+	return country_list
+
 
 if __name__ == "__main__":
 	# Request input of keywords

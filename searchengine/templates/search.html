@@ -5,6 +5,14 @@
         <form class="col s12" action="" method="post">
             {% csrf_token %}
             <div class="row justify-content-center">
+
+                <div class="col-2 align-self-center">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal2" style="opacity:0.7">
+                        <i class="large material-icons">equalizer</i>
+                    </button>
+                </div>
+
                 <div class="col-2 align-self-center">
                     <!-- Button trigger modal -->
                     <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal" style="opacity:0.7">
@@ -24,7 +32,7 @@
         </form>
     </div>
 
-    <!-- Modal -->
+    <!-- Filter Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -35,17 +43,17 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/searchengine/testing" method="POST" id="filter-form">
+                <form action="/testing" method="POST" id="filter-form">
                     {% csrf_token %}
                     <div class="row">
-                        <h6>Filter by location</h6>                                            
+                        <h6>Filter by location</h6>
                     </div>
                     <div class="row">
                         <div class="col">
                             {% for location in locations %}
                             <div class="row">
                                     <label>
-                                        <input name="location" type="radio" class="with-gap" value="{{location}}"/>
+                                        <input name="location[]" type="checkbox" class="with-gap" value="{{location}}"/>
                                         <span>{{location}}</span>
                                     </label>
                             </div>
@@ -92,27 +100,68 @@
         </div>
     </div>
 
-    {% if query %}
-    <h4 style='color:whitesmoke'> Finding results for: {{query}} </h4>
+    <!-- Classification Modal -->
+<div class="modal fade" id="exampleModal2" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Classification Results</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <table>
+            <tr><img src="../static/img/plot_price_rating_sentiment.png" height="450" width="600"></tr>
+            <tr><img src="../static/img/plot_location_sentiment.png" height="450" width="600"></tr>
+            <tr><img src="../static/img/plot_variety_price-2.png" height="450" width="600"></tr>
+            <tr><img src="../static/img/plot_location_price.png" height="450" width="600"></tr>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+    {% if popular_terms %}
+    <div class="col-2">
+        <h4 style="color:whitesmoke">Top 3 searched terms:</h4>
+        <table style="color:whitesmoke">
+            {% for key, value in popular_terms %}
+            <tr>
+                <td>{{key}}</td>
+                <td>{{value}}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
     {% endif %}
-    <!-- Displays result cards for each result -->
-    {% if result %}
-        {% for res in result %}
-        <div class="row justify-content-center">
-        <div class="col-8">
-            <div class="card">
-            <div class="card-content">
-                <span class="card-title">{{res.title}}</span>
-                <p>{{res.content}}</p>
+    <div class="col-8">
+        {% if query %}
+            <h4 style='color:whitesmoke'> Finding results for: {{query}} </h4>
+        {% endif %}
+        <!-- Displays result cards for each result -->
+        {% if result %}
+            {% for res in result %}
+            <div class="row justify-content-center">
+                <div class="card">
+                <div class="card-content">
+                    <span class="card-title">{{res.title}}</span>
+                    <p>{{res.content}}</p>
+                </div>
+                <div class="card-action">
+                    <a class="deep-purple-text" href="#">Learn More</a>
+                </div>
+                </div>
             </div>
-            <div class="card-action">
-                <a class="deep-purple-text" href="#">Learn More</a>
-            </div>
-            </div>
-        </div>
-        </div>
-        
-        {% endfor %}
-    {% endif %}
+            {% endfor %}
+        {% endif %}
+    </div>
+</div>
+            
 
 {% endblock %}
