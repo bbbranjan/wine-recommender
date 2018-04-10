@@ -4,16 +4,19 @@ from __future__ import unicode_literals
 
 from django.shortcuts import render, render_to_response
 
-
 from django.http import Http404, HttpResponse, HttpResponseRedirect , JsonResponse
 from django.views import View
 
 from wine_recommender import get_wines, get_countries
 from autocorrect import spell
-
+from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from query_popularity import get_popular_terms
 
 import time
+
+stops = set(stopwords.words("english")) # Obtains common stop words from nltk
+lemmatizer = WordNetLemmatizer()
 
 class searchView(View):
 
@@ -26,6 +29,9 @@ class searchView(View):
         start_time = time.time()
 
         query = ' '.join([spell(word) for word in request.POST['term'].split()])
+
+        query = " ".join([lemmatizer.lemmatize(word) for word in query.split()])
+        query = " ".join([word for word in query.split() if word not in stops])
 
         # Debug request POST
         print(request.POST)
@@ -52,7 +58,7 @@ class filterView(View):
     def post(self, request):
         
         # Debug request POST
-        # print(request.POST)
+        print(request.POST)
 
         location_list = [countries[i] for i in request.POST.getlist('location')]
 
