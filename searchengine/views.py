@@ -9,17 +9,26 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect , JsonRespon
 from django.views import View
 
 from wine_recommender import get_wines
+from autocorrect import spell
+
+import time
 
 class searchView(View):
 
     # Handle POST requests
     def post(self, request):
-        
+
+        # Start timer
+        start_time = time.time()
         # Debug request POST
         print(request.POST)
         
         # Get recommended wines 
         result = get_wines(request.POST['term'])
+
+        time_taken = time.time() - start_time
+
+        print(time_taken)
         
         # Render frontend based on results obtained
         return render(request,'search.html',{'result': result,'locations':['Singapore','India','China','Poland']})
