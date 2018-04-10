@@ -7,7 +7,10 @@ def get_popular_terms(query=''):
     for index, row in df.iterrows():
         term_dict[row['query']] = row['count']
     query = query.strip()
-    if query.find(' ') == -1 and len(query) > 0:
+
+    if len(query) == 0:
+        pass
+    elif query.find(' ') == -1:
         print(query)
         if term_dict.has_key(query):
             term_dict[query] += 1
@@ -22,7 +25,7 @@ def get_popular_terms(query=''):
                 term_dict[term] = 1
 
     updated_df = pd.DataFrame(term_dict.items(), columns=['query', 'count'])
-    print(term_dict)
+    updated_df.to_csv('./wine-reviews/popular_terms.csv')
 
     desc_list = sorted(term_dict, key=term_dict.get, reverse=True)
     popular_terms_dict = {}
