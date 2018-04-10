@@ -4,24 +4,99 @@
     <div class="row center-align">
         <form class="col s12" action="" method="post">
             {% csrf_token %}
-            <div class="row">
-                <div class="input-field s6">
-                        <input id="term" type="text" name="term" class="validate" value="{{ request.POST.term }}">
+            <div class="row justify-content-center">
+                <div class="col-2 align-self-center">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#exampleModal" style="opacity:0.7">
+                        <i class="large material-icons">filter_list</i>
+                    </button>
+                </div>
+                <div class="col input-field col-6 ">
+                        <input id="term" type="text" name="term" class="validate" value="{{ request.POST.term }}" 
+                               style="color:whitesmoke">
                         <label for="term">Search</label>
                 </div>
-            </div>
-            <div class="row">
-                <input class="btn waves-effect waves-light deep-purple" type="submit" name="action">
-                </input>    
+                <div class="col-2 align-self-center">
+                    <input class="btn waves-effect waves-light btn-danger" type="submit" name="action" style="opacity:0.7">
+                    </input>
+                </div>
             </div>
         </form>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Filter List</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form action="/searchengine/testing" method="POST" id="filter-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <h6>Filter by location</h6>                                            
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            {% for location in locations %}
+                            <div class="row">
+                                    <label>
+                                        <input name="location" type="radio" class="with-gap" value="{{location}}"/>
+                                        <span>{{location}}</span>
+                                    </label>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col">
+                            <div class="row">
+                                <div class="col">
+                                    <div class="row">
+                                        <h6>Filter by price range</h6>                                            
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <p class="range-field">
+                                                <!-- Max Price is 1116. Update either from backend or update price -->
+                                                <div id="test-slider"></div>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <h6>Filter by ratings</h6>                                            
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <p class="range-field">
+                                                <input type="range" id="rating-range" min="0" max="100" value="{{ageValue}}"/>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                </form>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" type="submit" id="save-filters">Save changes</button>
+            </div>
+        </div>
+        </div>
     </div>
 
     <!-- Displays result cards for each result -->
     {% if result %}
         {% for res in result %}
-        <div class="row">
-        <div class="col s12 m8 offset-m2">
+        <div class="row justify-content-center">
+        <div class="col-8">
             <div class="card">
             <div class="card-content">
                 <span class="card-title">{{res.title}}</span>
