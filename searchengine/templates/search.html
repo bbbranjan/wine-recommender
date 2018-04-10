@@ -92,6 +92,9 @@
         </div>
     </div>
 
+    {% if query %}
+    <h4 style='color:whitesmoke'> Finding results for: {{query}} </h4>
+    {% endif %}
     <!-- Displays result cards for each result -->
     {% if result %}
         {% for res in result %}

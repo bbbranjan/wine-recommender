@@ -20,18 +20,21 @@ class searchView(View):
 
         # Start timer
         start_time = time.time()
+
+        query = ' '.join([spell(word) for word in request.POST['term'].split()])
+
         # Debug request POST
         print(request.POST)
         
         # Get recommended wines 
-        result = get_wines(request.POST['term'])
+        result = get_wines(query)
 
         time_taken = time.time() - start_time
 
         print(time_taken)
         
         # Render frontend based on results obtained
-        return render(request,'search.html',{'result': result,'locations':['Singapore','India','China','Poland']})
+        return render(request,'search.html',{'query': query, 'result': result,'locations':['Singapore','India','China','Poland']})
     
     # Handle GET requests
     def get(self, request):
