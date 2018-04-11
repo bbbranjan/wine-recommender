@@ -43,7 +43,7 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/searchengine/testing" method="POST" id="filter-form">
+                <form action="/searchengine/testing" method="POST" id="filter-form" name="{% csrf_token %}">
                     {% csrf_token %}
                     <div class="row">
                         <h6>Filter by Location of Manufacture</h6>
