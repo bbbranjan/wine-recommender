@@ -50,10 +50,10 @@ class searchView(View):
 
             # Render frontend based on results obtained
             return render(request,'search.html',{'query': query, 'result': result,'locations':countries, 'popular_terms': sorted(get_popular_terms(query).iteritems(), key=lambda (k,v): (v,k), reverse=True)})
-        elif request.POST.__contains__('location[]'):
+        elif request.POST.__contains__('price_range[]'):
             print("filterView")
 
-            print(request.POST['location[]'])
+            # print(request.POST['location[]'])
 
             query_dict = request.POST
 

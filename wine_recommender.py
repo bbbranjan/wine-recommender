@@ -47,7 +47,7 @@ def get_wines(keywords):
 	for index in list(reversed(result_indices)):
 		document = filtered_cleaned_dataframe.iloc[index]
 		original_document = filtered_original_dataframe.iloc[index]
-		result_documents.append({'title': document['title'].title(), 'content': original_document['review'], 'rating': original_document['rating'], 'country': original_document['country']})
+		result_documents.append({'title': document['title'].title(), 'content': original_document['review'], 'rating': original_document['rating'], 'price': original_document['price'], 'country': original_document['country']})
 		print("| {0} | {1} | {2} | %".format(index, document['title'].title(), round(float(result_array.item(index))*100.0, 2)))
 
 	return result_documents
@@ -63,7 +63,8 @@ def get_countries():
 def set_filters(filter_dict):
 	print(filter_dict)
 	global filtered_cleaned_dataframe
-	filtered_cleaned_dataframe = cleaned_dataframe.loc[cleaned_dataframe['country'].str.strip().isin(filter_dict['location[]'])]
+	if filter_dict.has_key('location[]'):
+		filtered_cleaned_dataframe = cleaned_dataframe.loc[cleaned_dataframe['country'].str.strip().isin(filter_dict['location[]'])]
 	print(len(filtered_cleaned_dataframe.index))
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
