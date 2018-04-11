@@ -1,4 +1,5 @@
 import csv
+import nltk
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 import numpy as np
@@ -8,6 +9,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 import time
+
+nltk.download('wordnet')
+nltk.download('stopwords')
 
 stops = set(stopwords.words("english")) # Obtains common stop words from nltk
 lemmatizer = WordNetLemmatizer()
