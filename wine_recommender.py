@@ -70,6 +70,13 @@ def set_filters(filter_dict):
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price > float(filter_dict['price_range[]'][1])].index)
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.rating < int(filter_dict['rating'][0])].index)
+	if filter_dict['sentiment'][0] == 'pos':
+		filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.sentiment.str.strip() == 'neg'].index)
+	elif filter_dict['sentiment'][0] == 'neg':
+		filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.sentiment.str.strip() == 'pos'].index)
+	else:
+		pass
+
 	print(len(filtered_cleaned_dataframe.index))
 
 	global filtered_original_dataframe
