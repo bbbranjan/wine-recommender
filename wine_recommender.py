@@ -21,12 +21,13 @@ original_dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews.csv')
 filtered_cleaned_dataframe = cleaned_dataframe
 filtered_original_dataframe = original_dataframe
 
+# Gets most relevant documents
 def get_wines(keywords):
-	print(keywords)
-	start_feature_time = time.time()
+	print(keywords) # Debug
+	start_feature_time = time.time() # Times feature generation
 	vectorizer = TfidfVectorizer()
-	tfidf_matrix = vectorizer.fit_transform(filtered_cleaned_dataframe['review'])
-	feature_names = vectorizer.get_feature_names()
+	tfidf_matrix = vectorizer.fit_transform(filtered_cleaned_dataframe['review']) # Generate Tf-idf matrix
+	feature_names = vectorizer.get_feature_names() 
 	
 	query = keywords.split(' ')
 	result_matrix = csr_matrix((tfidf_matrix.get_shape()[0],1), dtype=np.float64)
@@ -35,19 +36,19 @@ def get_wines(keywords):
 
 	query_matrix = vectorizer.transform(query)
 
-	result_matrix = query_matrix*tfidf_matrix.T
+	result_matrix = query_matrix*tfidf_matrix.T # Get result matrix by multiplying query matrix with document matrix
 
 	print(tfidf_matrix.shape)
 	print(result_matrix.shape)
 
-	result_array = result_matrix.sum(axis=0)
+	result_array = result_matrix.sum(axis=0) # Sum up values of all results
 	# print(result_array.A)
 	result_indices = np.argsort(result_array).A.tolist()[0][-10:]
 	print(result_indices)
 
 	print('Results obtained in: {}'.format(time.time() - start_feature_time))
 	result_documents = []
-	start_document_indexing_time = time.time()
+	start_document_indexing_time = time.time() # Time document retrieval
 	for index in list(reversed(result_indices)):
 		document = filtered_cleaned_dataframe.iloc[index]
 		original_document = filtered_original_dataframe.iloc[index]
@@ -56,7 +57,7 @@ def get_wines(keywords):
 
 	return result_documents
 	
-
+# Gets list of unique countries in dataset
 def get_countries():
 	country_list = list(cleaned_dataframe['country'])
 	country_list = [c.strip() for c in country_list]
@@ -64,17 +65,23 @@ def get_countries():
 	country_list.sort()
 	return country_list
 
+# Sets filters from UI
 def set_filters(filter_dict):
 	print(filter_dict)
 	global filtered_cleaned_dataframe
 	filtered_cleaned_dataframe = cleaned_dataframe
-	if filter_dict.has_key('location[]'):
+	if filter_dict.has_key('location[]'): # Gets rows of location(s) specified
 		filtered_cleaned_dataframe = cleaned_dataframe.loc[cleaned_dataframe['country'].str.strip().isin(filter_dict['location[]'])]
 	print(len(filtered_cleaned_dataframe.index))
-	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
+
+	# Remove rows not falling in price range
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price > float(filter_dict['price_range[]'][1])].index)
+	
+	# Remove rows below minimum rating
 	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.rating < int(filter_dict['rating'][0])].index)
+	
+	# Filter out sentiment rows
 	if filter_dict['sentiment'][0] == 'pos':
 		filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.sentiment.str.strip() == 'neg'].index)
 	elif filter_dict['sentiment'][0] == 'neg':

@@ -144,7 +144,7 @@ def Word2VecClassification(dataframe, data_labels, train_split):
 		train_data_labels.append(data_labels[index])
 	train_data_vecs = getDocFeatureVecs(train_reviews['review'], model, num_features)
 
-	print(len(train_reviews['review']))
+	# print(len(train_reviews['review']))
 
 	dataframe = dataframe.drop(train_reviews.index.values)
 
@@ -164,7 +164,7 @@ def Word2VecClassification(dataframe, data_labels, train_split):
 	forest = forest.fit(train_data_vecs, train_data_labels)
 	predicted_labels = forest.predict(test_data_vecs)
 	prediction_times.append(float('{:0.4f}'.format(time.time() - start_rf)))
-	# predicted_labels = result
+	
 
 	accuracy_scores.append(float('{:0.2f}'.format(accuracy_score(test_data_labels, predicted_labels))))
 	inter_annotator_agreement_scores.append(float('{:0.2f}'.format(cohen_kappa_score(test_data_labels, predicted_labels))))
@@ -174,8 +174,6 @@ def Word2VecClassification(dataframe, data_labels, train_split):
 	fbeta_scores.append(float('{:0.2f}'.format(rf_fbeta_score)))
 
 	print(confusion_matrix(test_data_labels, predicted_labels, labels=['pos', 'neg']))
-
-# def computePCA():
 
 
 def main():
@@ -201,29 +199,27 @@ def main():
 			else:
 				neg_rows = neg_rows - 1
 				data_labels[index] = 'neg'
-			
-
-	# Remove punctuation
-	# dataframe["review"] = dataframe["review"].map(remove_punctuation)
 
 	print(neg_rows, pos_rows, len(dataframe["review"]))
 
+	# For training split of 60%
 	train_split = 0.6
 	print('\n\nTraining split: {}%\n\n'.format(float(train_split*100)))
-	tfidfClassification(dataframe, data_labels, train_split)
-	Word2VecClassification(dataframe, data_labels, train_split)
+	tfidfClassification(dataframe, data_labels, train_split) # Use TF-IDF vector-space model for classification
+	Word2VecClassification(dataframe, data_labels, train_split) # Use Word2Vec vector-space model for classification
 
 	
-
+	# For training split of 70%
 	train_split = 0.7
 	print('\n\nTraining split: {}%\n\n'.format(float(train_split*100)))
-	tfidfClassification(dataframe, data_labels, train_split)
-	Word2VecClassification(dataframe, data_labels, train_split)
+	tfidfClassification(dataframe, data_labels, train_split) # Use TF-IDF vector-space model for classification
+	Word2VecClassification(dataframe, data_labels, train_split) # Use Word2Vec vector-space model for classification
 
+	# For training split of 80%
 	train_split = 0.8
 	print('\n\nTraining split: {}%\n\n'.format(float(train_split*100)))
-	tfidfClassification(dataframe, data_labels, train_split)
-	Word2VecClassification(dataframe, data_labels, train_split)
+	tfidfClassification(dataframe, data_labels, train_split) # Use TF-IDF vector-space model for classification
+	Word2VecClassification(dataframe, data_labels, train_split) # Use Word2Vec vector-space model for classification
 
 	print('| Classification Method | Accuracy | Kappa | Precision | Recall | F-score | Time')
 	for i in range(0, len(methods)):
