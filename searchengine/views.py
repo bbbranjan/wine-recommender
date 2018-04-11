@@ -6,7 +6,6 @@ from django.shortcuts import render, render_to_response
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect , JsonResponse
 from django.views import View
-from django.views.decorators.csrf import csrf_exempt
 from wine_recommender import get_wines, get_countries, set_filters
 from autocorrect import spell
 from nltk.corpus import stopwords
@@ -58,7 +57,6 @@ class searchView(View):
             query_dict = request.POST
 
             filter_dict = dict(query_dict.iterlists())
-            del filter_dict['csrfmiddlewaretoken']
 
             # Render frontend based on results obtained
             return render(request,'search.html',{'success': set_filters(filter_dict)})

@@ -27,10 +27,11 @@ $(document).ready(function(){
         //TODO: Change endpoint in urls.py 
         //TODO: Create POST request either to existing endpoint or to someother endpoint.
         console.log({location:location,rating:rating,price_range:price_range})
-        var csrfmwtoken = $('#filter-form').attr("name");
-        console.log($(csrfmwtoken).attr("value"));
-        var csrfmiddlewaretoken = $(csrfmwtoken).attr("value");
-        $.post('http://localhost:8000/searchengine/',{csrfmiddlewaretoken:csrfmiddlewaretoken,location:location,rating:rating,price_range:price_range,sentiment:sentiment},function(success){
+        // var csrfmwtoken = $('#filter-form').attr("name");
+        // console.log($(csrfmwtoken).attr("value"));
+        // var csrfmiddlewaretoken = $(csrfmwtoken).attr("value");
+        // csrfmiddlewaretoken:csrfmiddlewaretoken
+        $.post('http://localhost:8000/searchengine/',{location:location,rating:rating,price_range:price_range,sentiment:sentiment},function(success){
         });
         $('#exampleModal').modal('toggle');
     });

@@ -3,7 +3,7 @@
 	<!-- Displays form for querying -->
     <div class="row center-align">
         <form class="col s12" action="" method="post">
-            {% csrf_token %}
+            
             <div class="row justify-content-center">
 
                 <div class="col-2 align-self-center">
@@ -43,8 +43,8 @@
             </button>
             </div>
             <div class="modal-body">
-                <form action="/searchengine/testing" method="POST" id="filter-form" name="{% csrf_token %}">
-                    {% csrf_token %}
+                <form action="/searchengine/testing" method="POST" id="filter-form">
+                    
                     <div class="row">
                         <h6>Filter by Location of Manufacture</h6>
                     </div>
