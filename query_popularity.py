@@ -23,9 +23,9 @@ def get_popular_terms(query=''):
                 term_dict[term] += 1
             else:
                 term_dict[term] = 1
-
-    updated_df = pd.DataFrame(term_dict.items(), columns=['query', 'count'])
-    updated_df.to_csv('./wine-reviews/popular_terms.csv')
+    global df
+    df = pd.DataFrame(term_dict.items(), columns=['query', 'count'])
+    df.to_csv('./wine-reviews/popular_terms.csv')
 
     desc_list = sorted(term_dict, key=term_dict.get, reverse=True)
     popular_terms_dict = {}

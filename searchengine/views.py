@@ -33,9 +33,10 @@ class searchView(View):
 
             # Start timer
             start_time = time.time()
-
             query = ' '.join([spell(word) for word in request.POST['term'].split(' ')])
 
+            query = query.lower()
+            
             query = ' '.join([lemmatizer.lemmatize(word) for word in query.split(' ')])
             query = ' '.join([word for word in query.split(' ') if word not in stops])
             
