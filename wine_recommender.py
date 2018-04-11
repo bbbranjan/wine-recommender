@@ -11,14 +11,17 @@ import time
 
 stops = set(stopwords.words("english")) # Obtains common stop words from nltk
 lemmatizer = WordNetLemmatizer()
+unfiltered_dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews_light.csv')
 cleaned_dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews_light.csv')
 original_dataframe = pd.read_csv('./wine-reviews/cleaned_wine_reviews.csv')
+filtered_cleaned_dataframe = cleaned_dataframe
+filtered_original_dataframe = original_dataframe
 
 def get_wines(keywords):
 	print(keywords)
 	start_feature_time = time.time()
 	vectorizer = TfidfVectorizer()
-	tfidf_matrix = vectorizer.fit_transform(cleaned_dataframe['review'])
+	tfidf_matrix = vectorizer.fit_transform(filtered_cleaned_dataframe['review'])
 	feature_names = vectorizer.get_feature_names()
 	
 	query = keywords.split(' ')
@@ -42,9 +45,9 @@ def get_wines(keywords):
 	result_documents = []
 	start_document_indexing_time = time.time()
 	for index in list(reversed(result_indices)):
-		document = cleaned_dataframe.iloc[index]
-		original_document = original_dataframe.iloc[index]
-		result_documents.append({'title': document['title'].title(), 'content': original_document['review']})
+		document = filtered_cleaned_dataframe.iloc[index]
+		original_document = filtered_original_dataframe.iloc[index]
+		result_documents.append({'title': document['title'].title(), 'content': original_document['review'], 'rating': original_document['rating'], 'country': original_document['country']})
 		print("| {0} | {1} | {2} | %".format(index, document['title'].title(), round(float(result_array.item(index))*100.0, 2)))
 
 	return result_documents
@@ -56,6 +59,21 @@ def get_countries():
 	country_list = list(set(country_list))
 	country_list.sort()
 	return country_list
+
+def set_filters(filter_dict):
+	print(filter_dict)
+	global filtered_cleaned_dataframe
+	filtered_cleaned_dataframe = cleaned_dataframe.loc[cleaned_dataframe['country'].str.strip().isin(filter_dict['location[]'])]
+	print(len(filtered_cleaned_dataframe.index))
+	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
+	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price < float(filter_dict['price_range[]'][0])].index)
+	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.price > float(filter_dict['price_range[]'][1])].index)
+	filtered_cleaned_dataframe = filtered_cleaned_dataframe.drop(filtered_cleaned_dataframe[filtered_cleaned_dataframe.rating < int(filter_dict['rating'][0])].index)
+	print(len(filtered_cleaned_dataframe.index))
+
+	global filtered_original_dataframe
+	filtered_original_dataframe = original_dataframe.loc[filtered_cleaned_dataframe.index.values]
+	return True
 
 
 if __name__ == "__main__":

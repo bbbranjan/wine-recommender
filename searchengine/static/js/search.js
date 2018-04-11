@@ -1,19 +1,23 @@
 $(document).ready(function(){
     var slider = document.getElementById('test-slider');
     noUiSlider.create(slider, {
-     start: [20, 80],
+     start: [0, 1200],
      connect: true,
      step: 1,
      tooltips: true,
      orientation: 'horizontal', // 'horizontal' or 'vertical'
-     range: {
-       'min': 0,
-       'max': 100
+     range: {       
+        'min': 0,
+        'max': 1200
      },
     });
     $('#save-filters').click(function(event){
         console.log("Clicked");
-        var location = $('input[name=location]:checked').val(); 
+        var selected = [];
+        $('input[name="location[]"]:checked').each(function() {
+            selected.push($(this).attr('value'));
+        });
+        var location = selected;
         var rating  =  $('#rating-range').val();
         var price_range = slider.noUiSlider.get();
         console.log(location,rating,price_range);
@@ -21,7 +25,8 @@ $(document).ready(function(){
         
         //TODO: Change endpoint in urls.py 
         //TODO: Create POST request either to existing endpoint or to someother endpoint.
-        $.post('searchengine',{location:location,rating:rating,price_range:price_range},function(success){
+        console.log({location:location,rating:rating,price_range:price_range})
+        $.post('http://localhost:8000/searchengine/',{csrfmiddlewaretoken:'khzPqIZrB0L5yF2qaUyv493RkTigV20WAN3bHlf62EPYbA7tkeASseg8DXAsuudy',location:location,rating:rating,price_range:price_range},function(success){
         });
         $('#exampleModal').modal('toggle');
     });

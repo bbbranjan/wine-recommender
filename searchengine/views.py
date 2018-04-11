@@ -6,8 +6,8 @@ from django.shortcuts import render, render_to_response
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect , JsonResponse
 from django.views import View
-
-from wine_recommender import get_wines, get_countries
+from django.views.decorators.csrf import csrf_exempt
+from wine_recommender import get_wines, get_countries, set_filters
 from autocorrect import spell
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
@@ -17,45 +17,64 @@ import time
 
 stops = set(stopwords.words("english")) # Obtains common stop words from nltk
 lemmatizer = WordNetLemmatizer()
+countries = get_countries()
 
 class searchView(View):
 
     # Handle POST requests
     def post(self, request):
 
-        countries = get_countries()
+        print("searchView")
 
-        # Start timer
-        start_time = time.time()
+        print(type(request.POST))
 
-        query = ' '.join([spell(word) for word in request.POST['term'].split()])
-
-        query = " ".join([lemmatizer.lemmatize(word) for word in query.split()])
-        query = " ".join([word for word in query.split() if word not in stops])
-
-        # Debug request POST
         print(request.POST)
-        
-        # Get recommended wines 
-        result = get_wines(query)
 
-        time_taken = time.time() - start_time
+        if request.POST.__contains__('term'):
 
-        print(time_taken)
+            # Start timer
+            start_time = time.time()
 
-        
-        # Render frontend based on results obtained
-        return render(request,'search.html',{'query': query, 'result': result,'locations':countries, 'popular_terms': sorted(get_popular_terms(query).iteritems(), key=lambda (k,v): (v,k), reverse=True)})
+            query = ' '.join([spell(word) for word in request.POST['term'].split(' ')])
+
+            query = ' '.join([lemmatizer.lemmatize(word) for word in query.split(' ')])
+            query = ' '.join([word for word in query.split(' ') if word not in stops])
+            
+            
+            # Get recommended wines 
+            result = get_wines(query)
+
+            time_taken = time.time() - start_time
+
+            print(time_taken)
+
+            # Render frontend based on results obtained
+            return render(request,'search.html',{'query': query, 'result': result,'locations':countries, 'popular_terms': sorted(get_popular_terms(query).iteritems(), key=lambda (k,v): (v,k), reverse=True)})
+        elif request.POST.__contains__('location[]'):
+            print("filterView")
+
+            print(request.POST['location[]'])
+
+            query_dict = request.POST
+
+            filter_dict = dict(query_dict.iterlists())
+            del filter_dict['csrfmiddlewaretoken']
+
+            # Render frontend based on results obtained
+            return render(request,'search.html',{'success': set_filters(filter_dict)})
     
     # Handle GET requests
     def get(self, request):
         
-        return render(request,'search.html',{'popular_terms': sorted(get_popular_terms().iteritems(), key=lambda (k,v): (v,k), reverse=True), 'locations':get_countries()})
+        return render(request,'search.html',{'popular_terms': sorted(get_popular_terms().iteritems(), key=lambda (k,v): (v,k), reverse=True), 'locations':countries})
 
 class filterView(View):
 
     # Handle POST requests
+    
     def post(self, request):
+
+        print("filterView")
         
         # Debug request POST
         print(request.POST)
@@ -65,5 +84,5 @@ class filterView(View):
         print(location_list)
 
         # Render frontend based on results obtained
-        return JsonResponse({'result':True})
+        return render(request,'search.html',{'result':True})
 

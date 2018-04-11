@@ -37,16 +37,16 @@
         <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Filter List</h5>
+            <h5 class="modal-title" id="exampleModalLabel">Filters</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
             </button>
             </div>
             <div class="modal-body">
-                <form action="/testing" method="POST" id="filter-form">
+                <form action="/searchengine/testing" method="POST" id="filter-form">
                     {% csrf_token %}
                     <div class="row">
-                        <h6>Filter by location</h6>
+                        <h6>Filter by Location of Manufacture</h6>
                     </div>
                     <div class="row">
                         <div class="col">
@@ -63,24 +63,24 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="row">
-                                        <h6>Filter by price range</h6>                                            
+                                        <h6>Filter by Price Range (USD)</h6>                                            
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <p class="range-field">
                                                 <!-- Max Price is 1116. Update either from backend or update price -->
-                                                <div id="test-slider"></div>
+                                                <div id="test-slider" name="2-way-price-slider" value="{{request.POST.price_range}}"></div>
                                             </p>
                                         </div>
                                     </div>
                                     
                                     <div class="row">
-                                        <h6>Filter by minimum rating</h6>                                            
+                                        <h6>Filter by Minimum Rating</h6>                                            
                                     </div>
                                     <div class="row">
                                         <div class="col">
                                             <p class="range-field">
-                                                <input type="range" id="rating-range" min="0" max="100" value="{{ageValue}}"/>
+                                                <input type="range" id="rating-range" min="0" max="100" value="{{request.POST.min_rating}}"/>
                                             </p>
                                         </div>
                                     </div>
@@ -88,13 +88,11 @@
                             </div>
                         </div>
                     </div>
-                    
-                    
                 </form>
             </div>
             <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" type="submit" id="save-filters">Save changes</button>
+            <button type="button" class="btn btn-primary" type="submit" id="save-filters">Save Changes</button>
             </div>
         </div>
         </div>
@@ -150,7 +148,7 @@
             <div class="row justify-content-center">
                 <div class="card" style="opacity: 0.8">
                 <div class="card-content">
-                    <span class="card-title">{{res.title}}</span>
+                    <span class="card-title">{{res.title}}, {{res.country}} | Rating: {{res.rating}}</span>
                     <p>{{res.content}}</p>
                 </div>
                 <div class="card-action">
